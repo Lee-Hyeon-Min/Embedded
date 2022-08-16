@@ -40,12 +40,27 @@ def Go_to_RED():
     while left_cs.color() != Color.RED:
         rate = gain * -(right_cs.reflection()-th)
         robot.drive(200,rate)
+    while right_cs.color() != Color.RED:
+        rate = gain * -(left_cs.reflection()-th)
+        robot.drive(200,rate)
 
 def Go_to_BLUE():
     while left_cs.color() != Color.BLUE:
         rate = gain * -(right_cs.reflection()-th)
         robot.drive(200,rate)
+    while right_cs.color() != Color.BLUE:
+        rate = gain * -(left_cs.reflection()-th)
+        robot.drive(200,rate)
 
+def From_Blue_to_Green():
+    while left_cs.color() != Color.GREEN:
+        rate = gain * (right_cs.reflection()-th)
+        robot.drive(200,rate)
+
+def From_Red_to_Green():
+    while left_cs.color() != Color.GREEN:
+        rate = gain * (right_cs.reflection()-th)
+        robot.drive(200,rate)
 
 def Grab_Object():    #물체를 인식하여 집어드는 함수
     while True:
@@ -55,7 +70,7 @@ def Grab_Object():    #물체를 인식하여 집어드는 함수
             wait(500)
             if ID == 1:
                 ev3.speaker.beep()
-                robot.straight(50)
+                robot.straight(10)
                 grab_motor.run_until_stalled(200,then = Stop.COAST,duty_limit = 50)
                 break
             elif ID == 2:
@@ -80,15 +95,17 @@ def Move_One_Block():
 
 #여기서 부터 동작에 관여 하는 라인
 
-grab_motor.run_until_stalled(-200, then = Stop.COAST,duty_limit = 50)
-
-while ultra.distance() != 20:
-    Move_One_Block()
-    if ultra.distance() < 20:
-        robot.stop()
+while True: #쓰레기 버리는 행위 무한 반복, 8번이 되면 집가서 멈춤
+    grab_motor.run_until_stalled(-200, then = Stop.COAST,duty_limit = 50)
+    Count = 0
+    
+    while ultra.distance() != 20:
+        Move_One_Block()
+        if ultra.distance() < 20:
+            robot.stop()
+            break
+        else:
+            pass
+        Grab_Object()
+        robot.turn(180)
         break
-    else:
-        pass
-    Grab_Object()
-    robot.turn(180)
-    break
