@@ -86,6 +86,44 @@ def Blue_End(): # 파란색에 놓고 뒤로 돌아 90도 회전 이후 출발�
         robot.drive(200,rate)
     robot.turn(107)
 
+def White_Area(): #흰색 지역(4번 라인)에서 물체 찾기 (성공?)
+    if ultra.distance() < 300:
+        robot.straight(200)
+        Grab_Object()
+    else:
+       Turning_For_Seeking_Object_in_White_zone()
+ 
+def Turning_For_Seeking_Object_in_White_zone():#90도 회전하여 4번 옆의 라인에 있는 물체 찾기(성공?)
+    wait(500)
+    robot.turn(-90)
+    if ultra.distance() < 300:
+        robot.straight(300)
+        Grab_Object()
+    elif ultra.distance() < 150:
+        robot.straight(150)
+        Grab_Object()
+    else:
+        robot.turn(-90)
+        Move_One_Block_Forward()
+        Move_One_Block_Forward()
+        Move_One_Block_Forward()
+
+
+
+def Turning_For_Seeking_Object_in_Black_zone():#90도 회전하여 1,2,3 옆의 라인에 있는 물체 찾기(성공?)
+    wait(500)
+    robot.turn(-90)
+    if ultra.distance() < 300:
+        Move_One_Block_Forward()
+        Move_One_Block_Forward()
+        Grab_Object()
+    elif ultra.distance() < 150:
+        Move_One_Block_Forward()
+        Grab_Object()
+    else:
+        robot.turn(90)
+        Move_One_Block_Forward()
+
 def Grab_Object():    #물체를 인식하여 집어드는 함수
     while True:
         blocks = h1.get_blocks()
@@ -109,7 +147,7 @@ def Grab_Object():    #물체를 인식하여 집어드는 함수
             wait(500)
     return ID
 
-def Move_One_Block():
+def Move_One_Block_Forward():
     while right_cs.color() != Color.BLACK :
         rate= gain * (left_cs.reflection() - th)
         robot.drive(200,rate)
@@ -124,3 +162,17 @@ grab_motor.run_until_stalled(-200, then = Stop.COAST,duty_limit = 50)
 Go_to_Red()
 Red_End()
 #Start()
+
+
+#여기는 메모 라인
+"""
+Grab_Object() 함수 내에 Go_to_Red()와 Red_End()등의 함수 넣어보기
+White_Area() 함수 확인해보기(특히 이 함수는 좀 손 많이 볼 필요 있음)
+-> 이쪽은 인터넷 찾아보면서 확인해보기
+Turning_For_Seeking_Object_in_Black_zone() 함수 확인해보기
+Turning_For_Seeking_Object_in_White_zone() 함수 확인해보기
+
+함수내에 함수 넣어보면서 오류 찾아보기
+함수들 조합해서 원하는 결과 만들어보기
+Gain 값, Threshold값에 따른 Move_One_Block 조절 
+"""
