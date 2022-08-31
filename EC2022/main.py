@@ -93,13 +93,7 @@ def Go_to_Blue1(): # 원점(1번 밑)을 기준으로 Blue 가기
     robot.straight(47)
     robot.turn(-90)
 
-    while right_cs.color() != Color.BLACK:
-        rate = gain * (left_cs.reflection()-th)
-        robot.drive(250, rate)
-    
-    while right_cs.color() == Color.BLACK:
-        rate = gain * (left_cs.reflection()-th)
-        robot.drive(250, rate)
+    Move_One_Block_Forward_Right_Plus()
     
     while right_cs.color() != Color.BLACK:
         rate = gain * (left_cs.reflection()-th)
@@ -120,14 +114,8 @@ def Go_to_Blue2(): # 5번 기준으로 Blue 가기
     robot.straight(250)
     robot.turn(-110)
 
-    while right_cs.color() != Color.BLACK:
-        rate = gain * (left_cs.reflection()-th)
-        robot.drive(250, rate)
-    
-    while right_cs.color() == Color.BLACK:
-        rate = gain * (left_cs.reflection()-th)
-        robot.drive(250, rate)
-    
+    Move_One_Block_Forward_Right_Plus()
+
     robot.turn(90)
     while right_cs.color() != Color.BLACK:
         rate = gain * (left_cs.reflection()-th)
@@ -320,13 +308,14 @@ if ultra.distance() < 400: # 5번에 물체가 있는지 확인
         robot.straight(70)
 
         grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
-        
+
         Red_End()
         Count += 1
     elif ID == 2:
         robot.turn(90)
         robot.straight(250)
         robot.turn(-90)
+        while True:
 
         Blue_End()
     else:
@@ -352,7 +341,7 @@ elif ultra.distance() < 800: # 9번에 물체가 있는지 확인
         Red_End()
         
     elif ID == 2:
-        robot.drive(200,12)
+        True
 else:
     robot.turn(-90)
     pass
@@ -373,6 +362,8 @@ White_Area() 함수 확인해보기(특히 이 함수는 좀 손 많이 볼 필�
 Gain 값, Threshold값에 따른 Move_One_Block 조절 
 
 5번, 9번 구간에서 바로 파란색, 빨간색 구간으로 갈 수 있게 설정하기
+
+Go_to_Blue, Go_to_Red 필요한가?
 
 # 여기서 부터는 번호(159 2610 3711 4812)순서로 가는것
 1번 라인만 확인해보기
