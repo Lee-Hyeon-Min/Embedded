@@ -268,6 +268,8 @@ def Straight_Seeking(): #1, 2, 3번에서 물건 찾기
     if ultra.distance() < 400:
         Far_Seeking()
         Grab_Object()
+    else:
+        Move_One_Block_Forward_Right_Plus()
 
 def Turning(): # 후진하면서 
     while robot.straight(-25):
@@ -311,11 +313,11 @@ if ultra.distance() < 400: # 5번에 물체가 있는지 확인
 
         Red_End()
         Count += 1
-    elif ID == 2:
+    elif ID == 2: # 5번 파란색은 좀 다른 경우로
         robot.turn(90)
         robot.straight(250)
         robot.turn(-90)
-        while True:
+        
 
         Blue_End()
     else:
