@@ -144,6 +144,8 @@ def Red_End(): # 빨간색에 놓고 뒤로 돌아 90도 회전 이후 출발지
     robot.straight(30)
     robot.turn(90)
 
+    Move_One_Block_Forward_Right_Plus()
+
 def Blue_End(): # 파란색에 놓고 뒤로 돌아 90도 회전 이후 출발지점으로 간다
     robot.straight(-90)
     robot.turn(190)
@@ -156,16 +158,12 @@ def Blue_End(): # 파란색에 놓고 뒤로 돌아 90도 회전 이후 출발�
         rate = gain * -(right_cs.reflection()-th)
         robot.drive(250,rate)
     
-    while left_cs.color() == Color.BLACK:
-        rate = gain * -(right_cs.reflection()-th)
-        robot.drive(250,rate)
-    
-    while left_cs.color() != Color.BLACK:
-        rate = gain * -(right_cs.reflection()-th)
-        robot.drive(250,rate)
-    
+    Move_One_Block_Forward_Left_Minus()
+        
     robot.straight(40)
     robot.turn(90)
+
+    Move_One_Block_Forward_Right_Plus()
 
 def White_Area(): #흰색 지역(4번 라인)에서 물체 찾기 (성공?)
     if ultra.distance() < 300:
@@ -271,7 +269,7 @@ def Straight_Seeking(): #1, 2, 3번에서 물건 찾기
     else:
         Move_One_Block_Forward_Right_Plus()
 
-def Turning(): # 후진하면서 
+def Turning_90(): # 후진하면서 회전하기
     while robot.straight(-25):
         robot.turn(-90)
         robot.stop()
@@ -295,7 +293,7 @@ elif ID == 2:
 else:
     pass
     Move_One_Block_Forward_Right_Plus()
-
+print('Count')
 robot.straight(40)
 robot.turn(100) 
 if ultra.distance() < 400: # 5번에 물체가 있는지 확인
@@ -313,12 +311,25 @@ if ultra.distance() < 400: # 5번에 물체가 있는지 확인
 
         Red_End()
         Count += 1
+
+
     elif ID == 2: # 5번 파란색은 좀 다른 경우로
         robot.turn(90)
         robot.straight(250)
         robot.turn(-90)
         
+        while right_cs.color() != Color.BLACK:
+            rate = gain * (left_cs.reflection()-th)
+            robot.drive(250, rate)
+        robot.straight(47)
+        robot.turn(100)
 
+        while left_cs.color() != Color.BLUE:
+            rate = gain * -(right_cs.reflection()-th)
+            robot.drive(250,rate)
+        robot.straight(70)
+        grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
+        
         Blue_End()
     else:
         pass
@@ -338,12 +349,22 @@ elif ultra.distance() < 800: # 9번에 물체가 있는지 확인
             rate = gain * -(right_cs.reflection()-th)
             robot.drive(250,rate)
         robot.straight(70)
+        
         grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
 
         Red_End()
         
     elif ID == 2:
-        True
+        robot.turn(90)
+        robot.straight(250)
+
+        while left_cs.color() != Color.BLUE:
+            rate = gain * -(right_cs.reflection()-th)
+            robot.drive(250,rate)
+        robot.straight(70)
+        
+        grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
+        Blue_End()
 else:
     robot.turn(-90)
     pass
