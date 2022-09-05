@@ -537,6 +537,10 @@ Move_One_Block_Forward_Left_Minus()
 Move_One_Block_Forward_Left_Minus()
 
 
+while left_cs.color() != Color.BLACK:
+    rate = gain*(right_cs.reflection()-th)
+    robot.drive(-200,rate) #이게 후진이네 그런데 이게 뒤로 가면서 90도 회전 했음, 이러한 사항을 다른 경우도 다 대입해봐야 할듯
+
 #######################
 # 여기 구간은 조합 구간
 
