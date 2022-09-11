@@ -388,8 +388,13 @@ Gain 값, Threshold값에 따른 Move_One_Block 조절
 
 Go_to_Blue, Go_to_Red 필요한가?
 
+robot.turn(90)
+robot.straight(250)
+위 2부분에 대해서 Move_one_Block_Backward의 함수를 활용하여 사용
+
+Go_to_Red, Go_to_Blue 함수를 수정하여 각 Blue라인, Red 라인에서 함수가 실행되도록 유도 할것인지 고민하기
+
 # 여기서 부터는 번호(159 2610 3711 4812)순서로 가는것
-1번 라인만 확인해보기
 
 # 여기는 1번
 Move_One_Block_Forward_Right_Plus()
