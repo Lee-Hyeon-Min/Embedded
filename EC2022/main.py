@@ -27,23 +27,27 @@ left_cs = ColorSensor(Port.S3) #왼쪽 컬러센서 초기화
 right_cs = ColorSensor(Port.S4) #오른쪽 컬러센서 초기화
 
 black = 8
-white = 63
+white = 62
 th = (black + white) / 2
-gain = 1.1
+gain = 0.8
 
 grab_motor = Motor(Port.A)
 
 # Write your program here.
 
 # 여기는 함수를 적는 라인
-def Start(): # 시작한다
+def Start():
+    grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
     robot.straight(160)
 
-def Go_Home(): # 끝나면 집으로 간다
-    robot.turn(-90)
+def Go_Home():
+    while left_cs.color() != Color.GREEN:
+            rate = gain * -(right_cs.reflection() - th)
+            robot.drive(230, rate)
+    robot.turn(-98)
     robot.straight(100)
     
-# 물체를 인식하여 집어드는 함수
+#물체를 인식하여 집어드는 함수
 def Grab_Object():
     while True:
         blocks = h1.get_blocks()
@@ -51,503 +55,610 @@ def Grab_Object():
             global ID
             ID = blocks[0].ID
             wait(500)
-            if ID == 1: #캔
-                robot.straight(75)
+            if ID == 1:
+                robot.straight(70)
                 robot.stop()
                 grab_motor.run_until_stalled(200,then = Stop.COAST,duty_limit = 50)
                 break
-            elif ID == 2: #패트병
-                robot.straight(75)
+            elif ID == 2:
+                robot.straight(70)
                 robot.stop()
                 grab_motor.run_until_stalled(200,then = Stop.COAST,duty_limit = 50)
                 break
             else:
                 pass
             wait(500)
-    return ID
 
 
+def Go_to_Red():  #원점(1번)에서 빨간색으로 출발
+    Move_One_Block_Forward_Left_Minus()
+    robot.turn(-96)
+    Move_One_Block_Forward_Right_Plus()
+    robot.turn(98)
 
-def Go_to_Red():  # 원점(1번)에서 빨간색으로 출발
-    while left_cs.color() != Color.BLACK:
-        rate = gain * -(right_cs.reflection()-th)
-        robot.drive(250,rate)
-    robot.straight(47)
-    robot.turn(-90)
-    
-    while right_cs.color() != Color.BLACK:
-        rate = gain * (left_cs.reflection()-th)
-        robot.drive(250, rate)
-    robot.straight(47)
-    robot.turn(90)
+    Release_On_Red()
+
+def Go_to_Blue():
+    Move_One_Block_Forward_Left_Minus()
+    robot.turn(-96)
+
+    Move_One_Block_Forward_Right_Plus()
+    Move_One_Block_Forward_Right_Plus()
+    robot.turn(98)
+
+    Release_On_Blue()
+
+def Release_On_Red():
     while left_cs.color() != Color.RED:
         rate = gain * -(right_cs.reflection()-th)
-        robot.drive(250,rate)
+        robot.drive(230,rate)
     robot.straight(70)
+
     grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
 
-def Go_to_Blue1(): # 원점(1번 밑)을 기준으로 Blue 가기
-    while left_cs.color() != Color.BLACK:
-        rate = gain * -(right_cs.reflection()-th)
-        robot.drive(250,rate)
-    robot.straight(47)
-    robot.turn(-90)
-
-    Move_One_Block_Forward_Right_Plus()
+def Release_On_Blue():
+    while right_cs.color() != Color.BLUE:
+        rate = gain * (left_cs.reflection()-th)
+        robot.drive(230,rate)
     
-    while right_cs.color() != Color.BLACK:
-        rate = gain * (left_cs.reflection()-th)
-        robot.drive(250, rate)
-    robot.straight(47)
-    robot.turn(100)
-
-    while left_cs.color() != Color.BLUE:
-        rate = gain * -(right_cs.reflection()-th)
-        robot.drive(250,rate)
     robot.straight(70)
     grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
 
-def Go_to_Blue2(): # 5번 기준으로 Blue 가기
-    wait(500)
-    robot.straight(50)
-    robot.turn(90)
-    robot.straight(250)
-    robot.turn(-110)
-
-    Move_One_Block_Forward_Right_Plus()
-
-    robot.turn(90)
-    while right_cs.color() != Color.BLACK:
-        rate = gain * (left_cs.reflection()-th)
-        robot.drive(250, rate)
-    robot.straight(47)
-    robot.turn(100)
-
-    while left_cs.color() != Color.BLUE:
-        rate = gain * -(right_cs.reflection()-th)
-        robot.drive(250,rate)
-    robot.straight(70)
-    grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
-
-
-def Red_End(): # 빨간색에 놓고 뒤로 돌아 90도 회전 이후 출발지점으로 간다
+def Red_End(): # 빨간색에 놓고 뒤로 돌아 90도 회전 이후 1번으로 간다
     robot.straight(-90)
     robot.turn(190)
-    while right_cs.color() != Color.BLACK:
-        rate = gain * (left_cs.reflection()-th)
-        robot.drive(250,rate)
-    robot.straight(47)
-    robot.turn(-82)
-    while right_cs.color() != Color.BLACK:
-        rate = gain * (left_cs.reflection()-th)
-        robot.drive(250,rate)
-    robot.straight(30)
-    robot.turn(90)
-
     Move_One_Block_Forward_Right_Plus()
-
-def Blue_End(): # 파란색에 놓고 뒤로 돌아 90도 회전 이후 출발지점으로 간다
-    robot.straight(-90)
-    robot.turn(190)
-    while left_cs.color() != Color.BLACK:
-        rate = gain * -(right_cs.reflection()-th)
-        robot.drive(250,rate)
-    robot.straight(47)
-    robot.turn(-90)
-    while left_cs.color() != Color.BLACK:
-        rate = gain * -(right_cs.reflection()-th)
-        robot.drive(250,rate)
-    
+    robot.turn(-96)
     Move_One_Block_Forward_Left_Minus()
+    robot.turn(98)
+    Move_One_Block_Forward_Right_Plus()
         
-    robot.straight(40)
-    robot.turn(90)
-
+def Blue_End(): # 파란색에 놓고 뒤로 돌아 90도 회전 이후 1번으로 간다
+    robot.straight(-90)
+    robot.turn(190)
+    Move_One_Block_Forward_Left_Minus()
+    robot.turn(-80)
+    Move_One_Block_Forward_Left_Minus()
+    Move_One_Block_Forward_Left_Minus()
+    robot.turn(98)
     Move_One_Block_Forward_Right_Plus()
 
-def White_Area(): #흰색 지역(4번 라인)에서 물체 찾기 (성공?)
-    if ultra.distance() < 300:
-        robot.straight(200)
-        Grab_Object()
-    else:
-       pass
- 
-
-def Move_One_Block_Forward_Right_Plus(): 
+def Far_Seeking_Right(): # 3번에서는 안됨
     while right_cs.color() != Color.BLACK :
         rate= gain * (left_cs.reflection() - th)
-        robot.drive(250,rate)
-    while right_cs.color() == Color.BLACK :
-        rate= gain * (left_cs.reflection() - th)
-        robot.drive(250,rate)
-    robot.stop()
+        robot.drive(200,rate)
+        if ultra.distance() < 80:
+            robot.stop()
+            break
 
-
-def Move_One_Block_Forward_Right_Minus():
-    while right_cs.color() != Color.BLACK :
-        rate= gain * -(left_cs.reflection() - th)
-        robot.drive(250,rate)
-    while right_cs.color() == Color.BLACK :
-        rate= gain * -(left_cs.reflection() - th)
-        robot.drive(250,rate)
-    robot.stop()
-
-def Move_One_Block_Forward_Left_Plus():
+def Far_Seeking_Left(): # 3번에서는 안됨
     while left_cs.color() != Color.BLACK :
-        rate= gain * (right_cs.reflection() - th)
-        robot.drive(250,rate)
+        rate= gain * -(right_cs.reflection() - th)
+        robot.drive(200,rate)
+        if ultra.distance() < 80:
+            robot.stop()
+            break
 
-    while left_cs.color() == Color.BLACK :
-        rate= gain * (right_cs.reflection() - th)
-        robot.drive(250,rate)
+def Move_One_Block_Forward_Right_Plus():
+    while right_cs.color() != Color.BLACK :
+        rate= gain * (left_cs.reflection() - th)
+        robot.drive(230,rate)
+    while right_cs.color() == Color.BLACK :
+        rate= gain * (left_cs.reflection() - th)
+        robot.drive(230,rate)
     robot.stop()
 
 def Move_One_Block_Forward_Left_Minus():
     while left_cs.color() != Color.BLACK :
         rate= gain * -(right_cs.reflection() - th)
-        robot.drive(250,rate)
+        robot.drive(230,rate)
 
     while left_cs.color() == Color.BLACK :
         rate= gain * -(right_cs.reflection() - th)
-        robot.drive(250,rate)
+        robot.drive(230,rate)
     robot.stop()
 
-def Turning_For_Seeking_Object_in_White_Zone():# 90도 회전하여 4번 옆의 라인에 있는 물체 찾기(성공?)
-    wait(500)
-    robot.turn(90)
-    if ultra.distance() < 300:
-        robot.straight(300)
 
-    elif ultra.distance() < 150:
-        robot.straight(160)
-    else:
-        robot.turn(-90)
-        robot.straight(400)
-        Move_One_Block_Forward_Right_Plus()
-        Move_One_Block_Forward_Right_Plus()
-        Move_One_Block_Forward_Right_Plus()
-        Move_One_Block_Forward_Right_Plus()
+############################################################################ 여기서부터 시작
 
-def Turning_For_Seeking_Object_in_Black_Zone():# 90도 회전하여 1,2 옆의 라인에 있는 물체 찾기
-    robot.straight(40)
-    robot.turn(100)
-    if ultra.distance() < 400:
-        Far_Seeking()
-        Grab_Object()
-        
-    elif ultra.distance() < 800:
-        Move_One_Block_Forward_Left_Minus()
-        Far_Seeking()
-        Grab_Object()
-
-    else:
-        robot.turn(-90)
-        pass
-
-def Turning_For_Seeking_Object_in_Black_Zone2():# 90도 회전하여 3 옆의 라인에 있는 물체 찾기
-    robot.straight(40)
-    robot.turn(100)
-    if ultra.distance() < 800:
-        Move_One_Block_Forward_Right_Plus()
-        Grab_Object()
-    else:
-        robot.turn(-90)
-
-def Far_Seeking(): # 가까이서 물체를 인식한다
-    while left_cs.color() != Color.BLACK :
-        rate= gain * -(right_cs.reflection() - th)
-        robot.drive(250,rate)
-
-        if ultra.distance() < 70:
-            robot.stop()
-            break
-
-def Straight_Seeking(): #1, 2, 3번에서 물건 찾기
-    if ultra.distance() < 400:
-        Far_Seeking()
-        Grab_Object()
-    else:
-        Move_One_Block_Forward_Right_Plus()
-
-def Turning_90(): # 후진하면서 회전하기
-    while robot.straight(-25):
-        robot.turn(-90)
-        robot.stop()
-
-# # 여기서부터 시작
-Count = 0
-
-grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
-ev3.speaker.beep()
-
+# 이곳은 1층 라인(1,5,9번)
 Start()
 Move_One_Block_Forward_Right_Plus()
-Straight_Seeking() # 1번에 물체가 있는지 확인
-if ID == 1:
-    Go_to_Red()
-    Red_End()
-    Count += 1
-elif ID == 2:
-    Go_to_Blue1()
-    Blue_End()
-else:
-    pass
-    Move_One_Block_Forward_Right_Plus()
-print('Count')
-robot.straight(40)
-robot.turn(100) 
-if ultra.distance() < 400: # 5번에 물체가 있는지 확인
-    Far_Seeking()
-    Grab_Object()
+robot.straight(150)
+if ultra.distance() < 60:
+    Grab_Object() # 1번에 물체가 있는지 확인
     if ID == 1:
-        robot.turn(90)
-        robot.straight(250)
-        while left_cs.color() != Color.RED:
-            rate = gain * -(right_cs.reflection()-th)
-            robot.drive(250,rate)
-        robot.straight(70)
-
-        grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
-
+        robot.turn(180)
+        Go_to_Red()
         Red_End()
-        Count += 1
 
-
-    elif ID == 2: # 5번 파란색은 좀 다른 경우로
-        robot.turn(90)
-        robot.straight(250)
-        robot.turn(-90)
-        
-        while right_cs.color() != Color.BLACK:
-            rate = gain * (left_cs.reflection()-th)
-            robot.drive(250, rate)
-        robot.straight(47)
-        robot.turn(100)
-
-        while left_cs.color() != Color.BLUE:
-            rate = gain * -(right_cs.reflection()-th)
-            robot.drive(250,rate)
-        robot.straight(70)
-        grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
-        
+    elif ID == 2:
+        robot.turn(180)
+        Go_to_Blue()
         Blue_End()
-    else:
-        pass
+        
+else:
+    Move_One_Block_Forward_Right_Plus()    
     
-elif ultra.distance() < 800: # 9번에 물체가 있는지 확인
-    Move_One_Block_Forward_Left_Minus()
-    Far_Seeking()
+robot.turn(98)
+
+
+if ultra.distance() < 400: # 5번에 물체가 있는지 확인
+    
+    Far_Seeking_Right()
     Grab_Object()
     if ID == 1:
-        robot.turn(90)
-        robot.straight(250)
-        robot.turn(90)
-        Move_One_Block_Forward_Left_Minus()
-        robot.turn(-90)
-
-        while left_cs.color() != Color.RED:
-            rate = gain * -(right_cs.reflection()-th)
-            robot.drive(250,rate)
         robot.straight(70)
-        
-        grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
-
+        robot.turn(98)
+        robot.straight(270)
+    
+        Release_On_Red()
         Red_End()
+
+        robot.turn(98) # 여기는 5번을 끝내고 9번을 하는 경우
+
+        if ultra.distance() < 810:
+            Far_Seeking_Right()
+            Grab_Object()
+
+            if ID == 1: # 9번에 캔인 경우
+                robot.straight(70)
+                robot.turn(98)
+                robot.straight(270)
+                robot.turn(98)
+                Move_One_Block_Forward_Left_Minus()
+                robot.turn(-96)
+
+                Release_On_Red()
+                Red_End()
+                
+            elif ID == 2:
+                robot.straight(70)
+                robot.turn(98)
+                robot.straight(270)
+                Release_On_Blue()
+                Blue_End()            
+        else:
+            robot.turn(-96)
+
+    elif ID == 2: # 5번 플라스틱인 경우(9번 거친거 아님)
+        robot.straight(70)
+        robot.turn(98)
+        robot.straight(270)
+        robot.turn(-90)
+        robot.straight(40)
+
+        Move_One_Block_Forward_Right_Plus()
+        robot.turn(98)
+
+        Release_On_Blue()        
+        Blue_End()
+        
+        # 5번에서 플라스틱을 찾고 9번에 물체 확인
+        robot.turn(98)
+        if ultra.distance() < 810:
+
+            Far_Seeking_Right()
+            Grab_Object()
+
+            if ID == 1: #9번에 캔이 있는 경우
+                robot.straight(70)
+                robot.turn(98)
+                robot.straight(270)
+                robot.turn(98)
+                Move_One_Block_Forward_Left_Minus()
+                robot.turn(-96)
+
+                Release_On_Red()
+                Red_End()
+        
+            elif ID == 2: # 9번에 플라스틱이 있는 경우
+                robot.straight(70)
+                robot.turn(98)
+                robot.straight(270)
+
+                Release_On_Blue()
+                Blue_End()
+        else:
+            robot.turn(-96)
+
+elif ultra.distance() < 810: # 5번에 물체가 없고 9번에 물체가 있는 경우
+    
+    Far_Seeking_Right()
+    Grab_Object()
+    
+    if ID == 1:
+        robot.straight(70)
+        robot.turn(98)
+        robot.straight(270)
+        robot.turn(96)
+    
+        Move_One_Block_Forward_Left_Minus()
+        robot.turn(-96)
+
+        Release_On_Red()
+        Red_End()
+        
+    elif ID == 2: # 9번 파란색은 좀 다른 경우로
+        robot.straight(70)
+        robot.turn(98)
+        robot.straight(270)
+
+        Release_On_Blue()
+        Blue_End()
+        
+else:
+    robot.turn(-96)
+
+##############################################################################
+# 여기는 2번라인(2,6,10)
+robot.straight(300)
+
+if ultra.distance() < 58:
+
+    Grab_Object() # 2번에 물체가 있는지 확인
+    if ID == 1:
+        robot.turn(180)
+        Move_One_Block_Forward_Left_Minus()
+        Go_to_Red()
+        Red_End()
+        Move_One_Block_Forward_Right_Plus()
         
     elif ID == 2:
-        robot.turn(90)
-        robot.straight(250)
-
-        while left_cs.color() != Color.BLUE:
-            rate = gain * -(right_cs.reflection()-th)
-            robot.drive(250,rate)
-        robot.straight(70)
-        
-        grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
+        robot.turn(180)
+        Move_One_Block_Forward_Left_Minus()
+        Go_to_Blue()
         Blue_End()
+        Move_One_Block_Forward_Right_Plus()        
 else:
-    robot.turn(-90)
-    pass
+    Move_One_Block_Forward_Right_Plus()
 
+robot.turn(99)
+
+if ultra.distance() < 400: # 6번에 물체가 있는지 확인
+
+    Far_Seeking_Right()
+    Grab_Object()
+    if ID == 1:
+        robot.straight(70)
+        robot.turn(98)
+        Move_One_Block_Forward_Right_Plus()
+        robot.straight(270)
+    
+        Release_On_Red()
+        Red_End()
+        Move_One_Block_Forward_Right_Plus()
+        robot.turn(98) # 여기는 6번을 끝내고 10번을 하는 경우
+        if ultra.distance() < 810:
+            
+            Move_One_Block_Forward_Right_Plus()
+            Far_Seeking_Right()
+            Grab_Object()
+        
+            if ID == 1: # 10번에 캔인 경우
+        
+                robot.straight(70)
+                robot.turn(98)
+                Move_One_Block_Forward_Right_Plus()
+                robot.straight(270)
+                robot.turn(98)
+                Move_One_Block_Forward_Left_Minus()
+                robot.turn(-96)
+
+                Release_On_Red()
+                Red_End()
+                Move_One_Block_Forward_Right_Plus()
+            
+            elif ID == 2: #10번이 플라스틱인 경우
+        
+                robot.straight(70)
+                robot.turn(98)
+                Move_One_Block_Forward_Right_Plus()
+                robot.straight(270)
+                
+                Release_On_Blue()
+                Blue_End()
+                Move_One_Block_Forward_Right_Plus()
+        else:
+            robot.turn(-96)
+
+    elif ID == 2: # 6번 플라스틱인 경우(10번 거친거 아님)
+        
+        robot.straight(70)
+        robot.turn(98)
+        Move_One_Block_Forward_Left_Minus()
+        robot.straight(270)
+        robot.turn(-92)
+        robot.straight(40)
+        Move_One_Block_Forward_Right_Plus()
+        robot.turn(97)
+
+        Release_On_Blue()
+        Blue_End()
+        Move_One_Block_Forward_Right_Plus()
+        # 6번에서 플라스틱을 찾고 10번에 물체 확인
+        robot.turn(98)
+
+        if ultra.distance() < 810:
+            Move_One_Block_Forward_Right_Plus()
+            Far_Seeking_Right()
+            Grab_Object()
+
+            if ID == 1: #10번에 캔이 있는 경우
+                robot.straight(70)
+                robot.turn(98)
+                Move_One_Block_Forward_Right_Plus()
+                
+                robot.straight(270)
+
+                robot.turn(98)
+                Move_One_Block_Forward_Left_Minus()
+                robot.turn(-96)
+
+                Release_On_Red()
+                Red_End()
+                Move_One_Block_Forward_Right_Plus()
+            
+            elif ID == 2: # 10번에 플라스틱이 있는 경우
+                robot.straight(70)
+                robot.turn(98)
+                Move_One_Block_Forward_Left_Minus()
+                robot.straight(270)
+                
+                Release_On_Blue()
+                Blue_End()
+                Move_One_Block_Forward_Right_Plus()
+        else:
+            robot.turn(-96)    
+
+elif ultra.distance() < 810: # 6번에 물체가 없고 10번에 물체가 있는 경우
+    
+    Move_One_Block_Forward_Right_Plus()
+    Far_Seeking_Right()
+    Grab_Object()
+    if ID == 1: #10번에 캔이 있는 경우
+        robot.straight(70)
+        robot.turn(98)
+        Move_One_Block_Forward_Right_Plus()
+        robot.straight(270)
+        robot.turn(96)
+        Move_One_Block_Forward_Left_Minus()
+        robot.turn(-96)
+
+        Release_On_Red()
+        Red_End()
+        Move_One_Block_Forward_Right_Plus()
+        
+    elif ID == 2: # 10번 파란색은 좀 다른 경우로
+        robot.straight(70)
+        robot.turn(98)
+        Move_One_Block_Forward_Right_Plus()
+        robot.straight(270)
+
+        Release_On_Blue()
+        Blue_End()
+        Move_One_Block_Forward_Right_Plus()
+        
+else:
+    robot.turn(-96)
+
+
+###############################################################################################
+# 여기는 3번 라인(3,7,11)
+robot.straight(300)
+
+if ultra.distance() < 58:
+    
+    Grab_Object() # 1번에 물체가 있는지 확인
+    if ID == 1:
+        robot.turn(180)
+        Move_One_Block_Forward_Left_Minus()
+        Move_One_Block_Forward_Left_Minus()
+        Go_to_Red()
+        Red_End()
+        Move_One_Block_Forward_Right_Plus()
+        Move_One_Block_Forward_Right_Plus()
+    elif ID == 2:
+        robot.turn(180)
+        Move_One_Block_Forward_Left_Minus()
+        Move_One_Block_Forward_Left_Minus()
+        Go_to_Blue()
+        Blue_End()
+        Move_One_Block_Forward_Right_Plus()
+        Move_One_Block_Forward_Right_Plus()
+else:
+    Move_One_Block_Forward_Right_Plus()
+
+robot.turn(98)
+
+if ultra.distance() < 400: # 7번에 물체가 있는지 확인
+    Far_Seeking_Right()
+    Grab_Object()
+    if ID == 1:
+        robot.straight(70)
+        robot.turn(98)
+        Move_One_Block_Forward_Right_Plus()
+        Move_One_Block_Forward_Right_Plus()
+        robot.straight(270)
+        
+        Release_On_Red()
+        Red_End()
+        # 여기는 7번을 끝내고 11번을 하는 경우
+        Move_One_Block_Forward_Right_Plus()
+        Move_One_Block_Forward_Right_Plus()
+        robot.turn(98)
+        if ultra.distance() < 810:
+            Move_One_Block_Forward_Right_Plus()
+            Far_Seeking_Right()
+            Grab_Object()
+            if ID == 1: # 11번에 캔인 경우  
+                
+                robot.straight(70)
+                robot.turn(98)
+                Move_One_Block_Forward_Right_Plus()
+                Move_One_Block_Forward_Right_Plus()
+                robot.straight(270)
+                robot.turn(98)
+                Move_One_Block_Forward_Left_Minus()
+                robot.turn(-96)
+
+                Release_On_Red()
+                Red_End()
+                Move_One_Block_Forward_Right_Plus()
+                Move_One_Block_Forward_Right_Plus()
+
+            elif ID == 2: #11번이 플라스틱인 경우
+                robot.straight(70)
+                robot.turn(98)
+                Move_One_Block_Forward_Right_Plus()
+                Move_One_Block_Forward_Right_Plus()
+                robot.straight(270)
+                
+                Release_On_Blue()
+                Blue_End()
+                Move_One_Block_Forward_Right_Plus()
+                Move_One_Block_Forward_Right_Plus()
+        else:
+            robot.turn(-96)
+    elif ID == 2: # 7번 플라스틱인 경우(11번 거친거 아님)
+        robot.straight(70)
+        robot.turn(98)
+        Move_One_Block_Forward_Left_Minus()
+        Move_One_Block_Forward_Left_Minus()
+        robot.straight(270)
+        robot.turn(-96)
+        robot.straight(40)
+        Move_One_Block_Forward_Right_Plus()
+        robot.turn(98)
+
+        Release_On_Blue()
+        Blue_End()
+        Move_One_Block_Forward_Right_Plus()
+        Move_One_Block_Forward_Right_Plus()
+        # 7번에서 플라스틱을 찾고 11번에 물체 확인
+        robot.turn(98)
+        if ultra.distance() < 810:
+            
+            Move_One_Block_Forward_Right_Plus() # 나중에는 if를 사용하여 물체 있는지 우선 확인
+            Far_Seeking_Right()
+            Grab_Object()
+
+            if ID == 1: #11번에 캔이 있는 경우
+            
+                robot.straight(70)
+                robot.turn(98)
+
+                Move_One_Block_Forward_Right_Plus()
+                Move_One_Block_Forward_Right_Plus()
+                
+                robot.straight(270)
+                robot.turn(98)
+                Move_One_Block_Forward_Left_Minus()
+                robot.turn(-96)
+
+                Release_On_Red()
+                Red_End()
+                Move_One_Block_Forward_Right_Plus()
+                Move_One_Block_Forward_Right_Plus()
+            
+            elif ID == 2: # 11번에 플라스틱이 있는 경우
+            
+                robot.straight(70)
+                robot.turn(98)
+                Move_One_Block_Forward_Right_Plus()
+                Move_One_Block_Forward_Right_Plus()
+                robot.straight(270)
+
+                Release_On_Blue()
+                Blue_End()
+                Move_One_Block_Forward_Right_Plus()
+                Move_One_Block_Forward_Right_Plus()
+        else:
+            robot.turn(-96)
+
+elif ultra.distance() < 810: # 7번에 물체가 없고 11번에 물체가 있는 경우
+    
+    Move_One_Block_Forward_Right_Plus()
+    Far_Seeking_Right()
+    Grab_Object()
+    if ID == 1: #11번에 캔이 있는 경우
+        robot.straight(70)
+        robot.turn(98)
+        Move_One_Block_Forward_Right_Plus()
+        Move_One_Block_Forward_Right_Plus()
+        robot.straight(270)
+        robot.turn(96) 
+        Move_One_Block_Forward_Left_Minus()
+        robot.turn(-96)
+
+        Release_On_Red()
+        Red_End()
+        Move_One_Block_Forward_Right_Plus()
+        Move_One_Block_Forward_Right_Plus()
+
+    elif ID == 2: # 11번 파란색은 좀 다른 경우로
+        robot.straight(70)
+        robot.turn(98)
+        Move_One_Block_Forward_Right_Plus()
+        Move_One_Block_Forward_Right_Plus()
+
+        robot.straight(270)
+
+        Release_On_Blue()
+        Blue_End()
+        Move_One_Block_Forward_Right_Plus()
+        Move_One_Block_Forward_Right_Plus()
+else:
+    robot.turn(-98)
+   
+if ultra.distance() < 400:
+    robot.straight(350)
+    Grab_Object()
+    robot.turn(180)
+    robot.straight(400)
+    for i in range(4):
+        Move_One_Block_Forward_Left_Minus()
+    
+    if ID == 1:
+        Go_to_Red()
+        
+        Go_Home()
+    elif ID == 2:
+        Go_to_Blue()
+
+        Go_Home()
+else:
+    robot.turn(180)
+    for i in range(6):
+        Move_One_Block_Forward_Left_Minus()
+
+    
+robot.straight(100)
 
 
 
 # 여기는 메모 라인
+
 """
-캔은 빨간색, 패트병은 파란색
-
-White_Area() 함수 확인해보기(특히 이 함수는 좀 손 많이 볼 필요 있음)
--> 이쪽은 인터넷 찾아보면서 확인해보기
-
 함수내에 함수 넣어보면서 오류 찾아보기
 함수들 조합해서 원하는 결과 만들어보기
-
-Gain 값, Threshold값에 따른 Move_One_Block 조절 
-
-5번, 9번 구간에서 바로 파란색, 빨간색 구간으로 갈 수 있게 설정하기
-
-Go_to_Blue, Go_to_Red 필요한가?
-
-robot.turn(90)
-robot.straight(250)
-위 2부분에 대해서 Move_one_Block_Backward의 함수를 활용하여 사용
-
-Go_to_Red, Go_to_Blue 함수를 수정하여 각 Blue라인, Red 라인에서 함수가 실행되도록 유도 할것인지 고민하기
-
-# 여기서 부터는 번호(159 2610 3711 4812)순서로 가는것
-
-# 여기는 1번
-Move_One_Block_Forward_Right_Plus()
+빛에 따른 reflection값 때문에 th 값이 변한다. 그럴때 Gain값을 어떻게 조절할지에 대해 확인
+각도는 96도
 Grab_Object()
-robot.turn(200)
-Go_to_Red()
-Red_End()
+if ID == 2:
+    robot.straight(250)
+    while right_cs.color() != Color.BLACK:
+        rate = 3 * gain * (left_cs.reflection() - th)
+        robot.drive(-200, rate)
+    while right_cs.color() == Color.BLACK:
+        rate = 3 * gain * (left_cs.reflection() - th)
+        robot.drive(-200, rate)
+    
+    Move_One_Block_Forward_Left_Minus()
+    robot.straight(270)
+    
+robot.straight(70)
+grab_motor.run_until_stalled(-200,then = Stop.COAST,duty_limit = 50)
 
-
-# 여기는 5번
-
-Move_One_Block_Forward_Right_Plus()
-Turning_For_Seeking_Object_in_Black_Zone()
-robot.turn(200)
-Move_One_Block_Forward_Right_Plus()
-robot.turn(-90)
-robot.straight(40)
-Go_to_Red()
-Red_End()
-
-
-
-Move_One_Block_Forward_Right_Plus()
-Turning_For_Seeking_Object_in_Black_Zone()
-Go_to_Blue2()
-Blue_End()
-
-
-# 여기는 9번
-
-Move_One_Block_Forward_Right_Plus()
-
-Turning_For_Seeking_Object_in_Black_Zone()
-
-robot.turn(200)
-Move_One_Block_Forward_Right_Plus()
-Move_One_Block_Forward_Right_Plus()
-
-robot.turn(-90)
-robot.straight(40)
-Go_to_Red()
-Red_End()
-
-
-# 여기는 2번
-
-Move_One_Block_Forward_Right_Plus()
-Grab_Object()
-robot.turn(200)
-Move_One_Block_Forward_Left_Minus()
-robot.straight(20)
-
-Go_to_Red()
-Red_End()
-
-# 여기는 6번
-
-Move_One_Block_Forward_Right_Plus()
-Move_One_Block_Forward_Right_Plus()
-
-Turning_For_Seeking_Object_in_Black_Zone()
-
-robot.turn(200)
-Move_One_Block_Forward_Left_Minus()
-robot.turn(-90)
-robot.straight(40)
-Move_One_Block_Forward_Left_Minus()
-
-Go_to_Red()
-Red_End()
-
-# 여기는 10번
-Move_One_Block_Forward_Right_Plus()
-Move_One_Block_Forward_Right_Plus()
-Turning_For_Seeking_Object_in_Black_Zone()
-robot.turn(200)
-Move_One_Block_Forward_Left_Minus()
-Move_One_Block_Forward_Left_Minus()
-robot.turn(-90)
-robot.straight(40)
-Move_One_Block_Forward_Left_Minus()
-
-Go_to_Red()
-Red_End()
-
-
-# 여기는 3번
-Move_One_Block_Forward_Right_Plus()
-Move_One_Block_Forward_Right_Plus()
-Grab_Object()
-robot.turn(200)
-Move_One_Block_Forward_Left_Minus()
-Move_One_Block_Forward_Left_Minus()
-Go_to_Red()
-Red_End()
-
-
-# 여기는 7번
-Move_One_Block_Forward_Right_Plus()
-Move_One_Block_Forward_Right_Plus()
-Move_One_Block_Forward_Right_Plus()
-Turning_For_Seeking_Object_in_Black_Zone()
-robot.turn(200)
-Move_One_Block_Forward_Left_Minus()
-robot.turn(-90)
-robot.straight(40)
-Move_One_Block_Forward_Left_Minus()
-Move_One_Block_Forward_Left_Minus()
-
-Go_to_Red()
-Red_End()
-
-
-# 여기는 11번
-
-Move_One_Block_Forward_Right_Plus()
-Move_One_Block_Forward_Right_Plus()
-Move_One_Block_Forward_Right_Plus()
-
-Turning_For_Seeking_Object_in_Black_Zone2()
-
-robot.turn(200)
-Move_One_Block_Forward_Left_Minus()
-Move_One_Block_Forward_Left_Minus()
-robot.turn(-90)
-robot.straight(40)
-Move_One_Block_Forward_Left_Minus()
-Move_One_Block_Forward_Left_Minus()
-
-Go_to_Red()
-Red_End()
-
-# 여기는 4번 구간
-
-
-Move_One_Block_Forward_Right_Plus()
-Move_One_Block_Forward_Right_Plus()
-Move_One_Block_Forward_Right_Plus()
-
-Grab_Object()
-
-robot.straight(-288)
-robot.turn(180)
-Move_One_Block_Forward_Left_Minus()
-Move_One_Block_Forward_Left_Minus()
-
-
-while left_cs.color() != Color.BLACK:
-    rate = gain*(right_cs.reflection()-th)
-    robot.drive(-200,rate) #이게 후진이네 그런데 이게 뒤로 가면서 90도 회전 했음, 이러한 사항을 다른 경우도 다 대입해봐야 할듯
-
-#######################
-# 여기 구간은 조합 구간
-
-
+위 코드는 5번에서 물체를 잡고 앞으로 전진 후 뒤로 -90도 회전을 하며 후진을 한다
 """
