@@ -150,7 +150,7 @@ def Blue_End(): # 파란색에 놓고 뒤로 돌아 90도 회전 이후 1번으�
     robot.turn(100)
     Move_One_Block_Forward_Right_Plus()
 
-def Far_Seeking_Right(): # 물체가 있으면 멈추고 아니면 검은 영역까지 이동(거의 Move 함수와 
+def Far_Seeking_Right(): # 물체가 있으면 멈추고 아니면 검은 영역까지 이동(거의 Move 함수와 비슷)
     while right_cs.color() != Color.BLACK:
         rate= gain * (left_cs.reflection() - th_left)
         robot.drive(250,rate)
@@ -165,7 +165,7 @@ def Far_Seeking_Right(): # 물체가 있으면 멈추고 아니면 검은 영역
     robot.stop()
             
 
-def Move_One_Block_Forward_Right_Plus():
+def Move_One_Block_Forward_Right_Plus(): # 오른쪽 컬러센서가 검은색을 인식 할 때까지와 한 이후까지 이동
     while right_cs.color() != Color.BLACK:
         rate= gain * (left_cs.reflection() - th_left)
         robot.drive(250,rate)
