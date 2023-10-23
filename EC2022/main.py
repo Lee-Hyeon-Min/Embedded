@@ -151,13 +151,13 @@ def Blue_End(): # 파란색에 놓고 뒤로 돌아 90도 회전 이후 1번으�
     Move_One_Block_Forward_Right_Plus()
 
 def Far_Seeking_Right(): # 물체가 있으면 멈추고 아니면 검은 영역까지 이동(거의 Move 함수와 비슷)
-    while right_cs.color() != Color.BLACK:
-        rate= gain * (left_cs.reflection() - th_left)
+    while right_cs.color() != Color.BLACK: # 오른쪽 컬러 센서 기기가 검은색을 인식하지 않는 동안 아래 코드 진행
+        rate= gain * (left_cs.reflection() - th_left) # rate 값은 왼쪽 컬러 센서에 반사되는 빛의 값과 
         robot.drive(250,rate)
-        if ultra.distance() < 80:
+        if ultra.distance() < 80: # 초음파 센서가 물체와 거리 측정 시 8cm 미만인 경우 멈추고 함수 종료
             robot.stop()
             break
-        else:
+        else: # 아닐시 계속 진행
             pass
     while right_cs.color() == Color.BLACK:
         rate = gain * (left_cs.reflection() - th_left)
